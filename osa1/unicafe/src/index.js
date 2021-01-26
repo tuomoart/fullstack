@@ -9,16 +9,20 @@ const Button = ({ onClick, text }) => (
 )
 
 const Statistics = ({ good, neutral, bad}) => {
-  return (
-    <div>
-      <div>good {good}</div>
-      <div>neutral {neutral}</div>
-      <div>bad {bad}</div>
-      <div>all {good+neutral+bad}</div>
-      <div>average {(good+bad*(-1))/(good+neutral+bad)}</div>
-      <div>positive {good/(good+neutral+bad)*100} %</div>
-    </div>
-  )
+  if (good+neutral+bad > 0) {
+    return (
+      <div>
+        <div>good {good}</div>
+        <div>neutral {neutral}</div>
+        <div>bad {bad}</div>
+        <div>all {good+neutral+bad}</div>
+        <div>average {(good+bad*(-1))/(good+neutral+bad)}</div>
+        <div>positive {good/(good+neutral+bad)*100} %</div>
+      </div>
+    )
+  }
+
+  return (<div>No feeback has been given :(</div>)
 }
 
 const App = () => {
