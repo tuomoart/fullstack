@@ -9,6 +9,7 @@ const Button = ({ onClick, text }) => (
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+  const [best, setBest] = useState(0)
   const [points, setPoints] = useState(new Array(props.anecdotes.length+1).join('0').split('').map(parseFloat))
 
   const pickOne = () => {
@@ -20,16 +21,20 @@ const App = (props) => {
 
     copy[selected] += 1
     setPoints(copy)
+    setBest(copy.indexOf(Math.max(...copy)))
   }
-
+  debugger
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       {props.anecdotes[selected]}
       <div>has {points[selected]} votes</div>
       <div>
         <Button onClick={pickOne} text='pick another' />
         <Button onClick={vote} text='vote' />
       </div>
+      <h1>Anecdote with most votes</h1>
+      {props.anecdotes[best]}
     </div>
   )
 }
