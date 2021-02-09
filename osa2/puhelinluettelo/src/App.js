@@ -22,17 +22,6 @@ const Person = ({ person }) => {
   )
 }
 
-const Filter = ({ search, onChange }) => {
-  return(
-    <div>
-      search for <input
-        value={search}
-        onChange={onChange}
-      />
-    </div>
-  )
-}
-
 const Field = ({ text, value, onChange }) => {
   return(
     <div>
