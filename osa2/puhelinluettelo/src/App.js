@@ -22,6 +22,28 @@ const Person = ({ person }) => {
   )
 }
 
+const Filter = ({ search, onChange }) => {
+  return(
+    <div>
+      search for <input
+        value={search}
+        onChange={onChange}
+      />
+    </div>
+  )
+}
+
+const Field = ({ text, value, onChange }) => {
+  return(
+    <div>
+      {text} <input 
+        value={value}
+        onChange={onChange}
+      />
+    </div>
+  )
+}
+
 const App = () => {
   const [ persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
@@ -70,26 +92,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-        search for <input
-          value={search}
-          onChange={handleSearchChange}
-        />
-      </div>
+      <Field text={"Search for"} value={search} onChange={handleSearchChange} />
       <h3>Add new</h3>
       <form onSubmit={addPerson}>
-        <div>
-          name: <input 
-            value={newName}
-            onChange={handleNameChange}
-          />
-        </div>
-        <div>
-          number: <input 
-            value={newNumber}
-            onChange={handleNumberChange}
-          />
-        </div>
+        <Field text={"Name:"} value={newName} onChange={handleNameChange} />
+        <Field text={"Number:"} value={newNumber} onChange={handleNumberChange} />
         <div>
           <button type="submit">add</button>
         </div>
