@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const CountriesDisplay = ({ countries }) => {
+const CountriesDisplay = ({ countries, filter }) => {
   if (countries.length === 1) {
     const country = countries[0]
     return(
@@ -12,7 +12,7 @@ const CountriesDisplay = ({ countries }) => {
 
         <h3>languages:</h3>
         <ul>
-          {country.languages.map(language => <li>{language.name}</li>)}
+          {country.languages.map(language => <li key={language.name}>{language.name}</li>)}
         </ul>
 
         <img src={country.flag} width="100"/>
@@ -24,18 +24,25 @@ const CountriesDisplay = ({ countries }) => {
     <div>
       <ul>
         {countries.map(country => 
-          <Country key={country.name} country={country} />
+          <Country key={country.name} country={country} filter={filter} />
         )}
       </ul>
     </div>
   )
 }
 
-const Country = ({ country }) => {
+const Country = ({ country, filter }) => {
+
   return(
     <div>
       <li>
-        {country.name}
+        <div>
+          {country.name + " "} 
+          <button key={country.name} type="button" onClick={(event) => {
+          console.log(country.name)
+          filter(country.name)
+          }}>show</button>
+        </div>
       </li>
     </div>
   )
@@ -75,7 +82,7 @@ const App = () => {
     <div>
       <h2>Countries</h2>
       <Field text={"Search for"} value={search} onChange={handleSearchChange} />
-      <CountriesDisplay countries={countriesToShow} />
+      <CountriesDisplay countries={countriesToShow} filter={setSearch} />
     </div>
   )
 
