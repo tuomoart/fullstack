@@ -2,6 +2,24 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const CountriesDisplay = ({ countries }) => {
+  if (countries.length === 1) {
+    const country = countries[0]
+    return(
+      <div>
+        <h2>{country.name}</h2>
+        <p>capital: {country.capital}</p>
+        <p>population: {country.population}</p>
+
+        <h3>languages:</h3>
+        <ul>
+          {country.languages.map(language => <li>{language.name}</li>)}
+        </ul>
+
+        <img src={country.flag} width="100"/>
+      </div>
+    )
+  }
+
   return(
     <div>
       <ul>
