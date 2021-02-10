@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const CountriesDisplay = ({ countries, filter }) => {
-  if (countries.length === 1) {
+  if (countries.length > 10) {
+    return(
+      <div>Too many results, provide more search parameters, please!</div>
+    )
+  } else if (countries.length === 1) {
     const country = countries[0]
     return(
       <div>
@@ -40,8 +44,8 @@ const Country = ({ country, filter }) => {
           {country.name + " "} 
           <button key={country.name} type="button" onClick={(event) => {
           console.log(country.name)
-          filter(country.name)
-          }}>show</button>
+          filter(country.name)}
+          }>show</button>
         </div>
       </li>
     </div>
