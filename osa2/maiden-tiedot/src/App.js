@@ -20,6 +20,8 @@ const CountriesDisplay = ({ countries, filter }) => {
         </ul>
 
         <img src={country.flag} width="100"/>
+
+        <WeatherDisplay country={country} />
       </div>
     )
   }
@@ -31,6 +33,42 @@ const CountriesDisplay = ({ countries, filter }) => {
           <Country key={country.name} country={country} filter={filter} />
         )}
       </ul>
+    </div>
+  )
+}
+
+const WeatherDisplay = ({ country }) => {
+  const [ weather, setWeather ] = useState({
+    current: {
+      temperature: "",
+      weather_icons: [
+        ""
+      ],
+      wind_speed: "",
+      wind_dir: "",
+    }
+  })
+  const api_key = process.env.REACT_APP_API_KEY
+
+  useEffect(() => {
+    axios
+      .get('http://api.weatherstack.com/current?access_key=' + api_key + '&query=' + country.capital)
+      .then(response => {
+        setWeather(response.data)
+      })
+  }, [country.name])
+
+  return(
+    <div>
+      <h3>Weather in {country.name}</h3>
+
+      temperature: {weather.current.temperature} C
+
+      <p>
+        <img src={weather.current.weather_icons} width="50"/>
+      </p>
+
+      wind: {weather.current.wind_speed} km/h, direction: {weather.current.wind_dir}
     </div>
   )
 }
