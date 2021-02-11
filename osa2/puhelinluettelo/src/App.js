@@ -39,11 +39,35 @@ const Field = ({ text, value, onChange }) => {
   )
 }
 
+const Notification = ({ message, type }) => {
+  if (message === null) {
+    return null
+  }
+
+  if (type === 0) {
+    
+    return (
+      <div className="notification">
+        {message}
+      </div>
+    )
+  }
+
+  return (
+    <div className="error">
+      {message}
+    </div>
+  )
+  
+}
+
 const App = () => {
   const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ search, setSearch ] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorType, setErrorType] = useState()
 
   useEffect(() => {
     personsService
@@ -53,6 +77,22 @@ const App = () => {
       })
   }, [])
 
+  const showNotification = (message) => {
+    setErrorType(0)
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+
+  const showError = (message) => {
+    setErrorType(1)
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+  
   const addPerson = (event) => {
     event.preventDefault()
 
@@ -74,6 +114,16 @@ const App = () => {
             .then(newPersons =>
               {
                 setPersons(newPersons)
+                showNotification(`${updatedPerson.name} updated!`)
+              })
+          })
+          .catch(error => {
+            showError(`'${person.name}' was already removed from server`)
+            personsService
+            .getAll()
+            .then(newPersons =>
+              {
+                setPersons(newPersons)
               })
           })
       }      
@@ -89,6 +139,7 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNewName("")
         setNewNumber("")
+        showNotification(`${returnedPerson.name} added!`)
       })
       
     }
@@ -106,6 +157,10 @@ const App = () => {
           .then(newPersons =>
             {
               setPersons(newPersons)
+              showNotification(`${person.name} deleted!`)
+            })
+            .catch(error => {
+              showError(`'${person.name}' was already removed from server`)
             })
         })
     }
@@ -128,6 +183,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} type={errorType} />
       <Field text={"Search for"} value={search} onChange={handleSearchChange} />
       <h3>Add new</h3>
       <form onSubmit={addPerson}>
