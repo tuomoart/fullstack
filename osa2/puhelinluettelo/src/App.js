@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import personsService from "./services/persons"
 
-const PersonsDisplay = ({ persons }) => {
+const PersonsDisplay = ({ persons, deleteAPerson }) => {
   return(
     <div>
       <ul>
         {persons.map(person => 
-          <Person key={person.name} person={person} />
+          <Person
+            key={person.name}
+            person={person}
+            deleteThisPerson={() => deleteAPerson(person)}
+          />
         )}
       </ul>
     </div>
   )
 }
 
-const Person = ({ person }) => {
+const Person = ({ person , deleteThisPerson}) => {
   return(
     <div>
       <li>
         {person.name} {person.number}
+        <button onClick={deleteThisPerson}>delete</button>
       </li>
     </div>
   )
@@ -56,12 +61,28 @@ const App = () => {
     }
 
     if (persons.map(person => person.name).includes(newName)) {
-      alert(`${newName} is already added to phonebook`)
+      const confirmation = window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)
+
+      if (confirmation) {
+        const person = persons.find(p => p.name === newName)
+        const updatedPerson = {...person, number: newNumber}
+        personsService
+          .update(updatedPerson.id, updatedPerson)
+          .then(returnedPersons => {
+            personsService
+            .getAll()
+            .then(newPersons =>
+              {
+                setPersons(newPersons)
+              })
+          })
+      }      
     } else {
       const nameObject = {
         name: newName,
         number: newNumber
       }
+
       personsService
       .create(nameObject)
       .then(returnedPerson => {
@@ -70,6 +91,23 @@ const App = () => {
         setNewNumber("")
       })
       
+    }
+  }
+
+  const deletePerson = (person) => {
+    const confirmation = window.confirm(`Are you sure you want to delete ${person.name}?`)
+
+    if (confirmation) {
+      personsService
+        .deleteThis(person.id)
+        .then(returnedPersons => {
+          personsService
+          .getAll()
+          .then(newPersons =>
+            {
+              setPersons(newPersons)
+            })
+        })
     }
   }
 
@@ -100,7 +138,7 @@ const App = () => {
         </div>
       </form>
       <h3>Numbers</h3>
-      <PersonsDisplay persons={personsToShow} />
+      <PersonsDisplay persons={personsToShow} deleteAPerson={deletePerson} />
     </div>
   )
 
