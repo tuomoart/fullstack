@@ -141,6 +141,7 @@ const App = () => {
         setNewNumber("")
         showNotification(`${returnedPerson.name} added!`)
       })
+      .catch(error => showError(error.response.data.error))
       
     }
   }
