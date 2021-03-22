@@ -20,8 +20,7 @@ const initialBlogs = [
 const testBlog = {
   title: 'Joku kolmas blogi',
   author: 'Tuntematon',
-  url: 'www.blogspot.se',
-  likes: 10
+  url: 'www.blogspot.se'
 }
 
 beforeEach(async () => {
@@ -67,6 +66,28 @@ test('blog with correct data is added', async () => {
   
   const response = await api.get('/api/blogs')
   expect(response.body[2].title).toContain("Joku kolmas blogi")
+})
+
+test('likes defaults to 0 if no value is given', async () => {
+  await api
+    .post('/api/blogs')
+    .send(testBlog)
+  
+  const response = await api.get('/api/blogs')
+  expect(response.body[2].likes).toBe(0)
+})
+
+test('blog without title or url is not added and status 400 is returned', async () => {
+  await api
+    .post('/api/blogs')
+    .send({
+      author: "kirjoittelija",
+      likes: 10
+    })
+    .expect(400)
+  
+  const response = await api.get('/api/blogs')
+  expect(response.body).toHaveLength(2)
 })
 
 afterAll(() => {
