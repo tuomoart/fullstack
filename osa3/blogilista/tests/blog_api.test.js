@@ -90,6 +90,36 @@ test('blog without title or url is not added and status 400 is returned', async 
   expect(response.body).toHaveLength(2)
 })
 
+test('blog can be deleted, number decreases by one', async () => {
+  let response = await api.get('/api/blogs')
+
+  await api
+    .delete(`/api/blogs/${response.body[0].id}`)
+    .expect(204)
+  
+    
+  response = await api.get('/api/blogs')
+  expect(response.body).toHaveLength(1)
+})
+
+test('blogs can be modified', async () => {
+  let response = await api.get('/api/blogs')
+
+  await api
+    .put(`/api/blogs/${response.body[0].id}`)
+    .send({
+      title: initialBlogs[0].title,
+      author: initialBlogs[0].author,
+      url: initialBlogs[0].url,
+      likes: 100000
+    })
+  
+  response = await api.get('/api/blogs')
+  expect(response.body).toHaveLength(2)
+
+  expect(response.body[0].likes).toBe(100000)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
