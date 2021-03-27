@@ -3,11 +3,15 @@ const User = require('../models/user')
 
 const userExtractor = async (request, response, next) => {
   
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (request.token) {
 
-  
-  const user = await User.findById(decodedToken.id)
-  request.user = user
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+
+    const user = await User.findById(decodedToken.id)
+    request.user = user
+
+  }
   
   next()
 }

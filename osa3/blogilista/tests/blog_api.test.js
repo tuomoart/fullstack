@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const loginRouter = require('../controllers/login')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const initialBlogs = [
   {
     title: 'Blogikirjoitus',
@@ -23,17 +25,33 @@ const testBlog = {
   url: 'www.blogspot.se'
 }
 
+const testUser = {
+  username: 'test',
+  name: 'test',
+  password: 'test'
+}
+
+let token = null
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   let blogObject = new Blog(initialBlogs[0])
   await blogObject.save()
   blogObject = new Blog(initialBlogs[1])
   await blogObject.save()
+
+  await User.deleteMany({})
+  await api.post('/api/users').send(testUser)
+
+  const result = await api.post('/api/login').send(testUser)
+
+  token = result.body.token
+
 })
 
 const api = supertest(app)
 
-test('notes are returned as json', async () => {
+test('blogs are returned as json', async () => {
   await api
     .get('/api/blogs')
     .expect(200)
@@ -50,10 +68,19 @@ test('id is defined as id', async () => {
   expect(response.body[0].id).toBeDefined()
 })
 
-test('when blog is added the number of blogs grows by one', async () => {
+test('cannot add blogs without a token', async () => {
   await api
     .post('/api/blogs')
     .send(testBlog)
+    .expect(401)
+})
+
+test('when blog is added the number of blogs grows by one', async () => {
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
+    .send(testBlog)
+    
   
   const response = await api.get('/api/blogs')
   expect(response.body).toHaveLength(3)
@@ -62,6 +89,7 @@ test('when blog is added the number of blogs grows by one', async () => {
 test('blog with correct data is added', async () => {
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(testBlog)
   
   const response = await api.get('/api/blogs')
@@ -71,6 +99,7 @@ test('blog with correct data is added', async () => {
 test('likes defaults to 0 if no value is given', async () => {
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send(testBlog)
   
   const response = await api.get('/api/blogs')
@@ -80,6 +109,7 @@ test('likes defaults to 0 if no value is given', async () => {
 test('blog without title or url is not added and status 400 is returned', async () => {
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
     .send({
       author: "kirjoittelija",
       likes: 10
@@ -91,15 +121,21 @@ test('blog without title or url is not added and status 400 is returned', async 
 })
 
 test('blog can be deleted, number decreases by one', async () => {
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `bearer ${token}`)
+    .send(testBlog)
+
   let response = await api.get('/api/blogs')
 
   await api
-    .delete(`/api/blogs/${response.body[0].id}`)
+    .delete(`/api/blogs/${response.body[2].id}`)
+    .set('Authorization', `bearer ${token}`)
     .expect(204)
   
     
   response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(1)
+  expect(response.body).toHaveLength(2)
 })
 
 test('blogs can be modified', async () => {
@@ -107,6 +143,7 @@ test('blogs can be modified', async () => {
 
   await api
     .put(`/api/blogs/${response.body[0].id}`)
+    .set('Authorization', `bearer ${token}`)
     .send({
       title: initialBlogs[0].title,
       author: initialBlogs[0].author,
